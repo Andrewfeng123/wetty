@@ -3,10 +3,8 @@
  * @module WeTTy
  */
 import express from 'express';
-import gc from 'gc-stats';
 import { Gauge, collectDefaultMetrics } from 'prom-client';
 import { getCommand } from './server/command.js';
-import { gcMetrics } from './server/metrics.js';
 import { server } from './server/socketServer.js';
 import { spawn } from './server/spawn.js';
 import {
@@ -60,7 +58,6 @@ export async function decorateServerWithSsh(
   }
 
   collectDefaultMetrics();
-  gc().on('stats', gcMetrics);
 
   const io = await server(app, serverConf, ssl);
   /**
