@@ -1,7 +1,6 @@
 ## Run WeTTY as a service daemon
 
-WeTTY can be run as a daemon on your service init confs and systemd services are
-bundled with the npm package to make this easier.
+WeTTY can be run as a daemon using init.d or systemd.
 
 ### init.d
 
@@ -13,20 +12,22 @@ $ sudo start wetty
 
 ### systemd
 
+A template unit file is provided at `conf/wetty.service.example`.
+
+### systemd
+
 ```bash
-$ yarn global add wetty
-$ cp ~/.node_modules/wetty/conf/wetty.service  ~/.config/systemd/user/
-$ systemctl --user enable wetty
-$ systemctl --user start wetty
+sudo cp /path/to/wetty/conf/wetty.service.example /etc/systemd/system/wetty.service
+# Edit WorkingDirectory and any ExecStart flags as needed
+sudo systemctl daemon-reload
+sudo systemctl enable --now wetty
 ```
 
-This will start WeTTY on port 3000. If you want to change the port or redirect
-stdout/stderr you should change the last line in `wetty.conf` file, something
-like this:
+This will start WeTTY on port 3000. Common `ExecStart` flags:
 
-```systemd
-exec sudo -u root wetty -p 80 >> /var/log/wetty.log 2>&1
+```
+pnpm start -- --base=/ --port=3000 --ssh-host=hostname
 ```
 
-Systemd requires an absolute path for a unit's WorkingDirectory, consequently
-`$HOME` will need updating to an absolute path in the `wetty.service` file.
+Run as `User=root` to get a `/bin/login` prompt (any local user can log in). Run
+as a non-root user to SSH to localhost as that user instead.

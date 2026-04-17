@@ -1,0 +1,23 @@
+# systemd unit file for WeTTY
+#
+# Copy to /etc/systemd/system/wetty.service and edit as needed.
+# Then: systemctl daemon-reload && systemctl enable --now wetty
+
+[Unit]
+Description=WeTTY - Web Terminal Emulator
+After=network.target
+
+[Service]
+Type=simple
+# Run as root to enable /bin/login (allows logging in as any user).
+# Run as a non-root user to SSH to localhost as that user instead.
+User=root
+WorkingDirectory=/path/to/wetty
+ExecStart=/usr/bin/env pnpm start
+# Optional flags, e.g.: pnpm start -- --base=/ --port=3000 --ssh-host=hostname
+Restart=on-failure
+RestartSec=5
+Environment=NODE_ENV=production
+
+[Install]
+WantedBy=multi-user.target

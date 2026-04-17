@@ -424,78 +424,29 @@ mkdir -p ~/.config/systemd/user
 
 ### Systemd service
 
-Here is an example template of how to use service file with hardcoded values you
-can set in the `wetty.service` file with all options enabled.
-
-Use `nano` to open a file for editing.
+A template unit file is provided at `conf/wetty.service.example`. Copy it to
+your systemd directory and edit `WorkingDirectory` and `ExecStart` as needed.
 
 ```bash
-nano ~/.config/systemd/user/wetty.service
+sudo cp /path/to/wetty/conf/wetty.service.example /etc/systemd/system/wetty.service
+nano /etc/systemd/system/wetty.service
 ```
 
-Then copy and paste this code.
+The `ExecStart` line accepts all wetty flags, for example:
 
-**Note:** This is an example service file based on all the options documented
-and configured so far. You may not want all these option enabled so please
-remove or modify the `ExecStart` command based on your needs.
-
-```bash
-[Unit]
-Description=WeTTY
-After=network-online.target
-
-[Service]
-Type=simple
-ExecStart=/bin/bash -c "$$(source /home/$$(whoami)/.nvm/nvm.sh && nvm which 12) /home/$$(whoami)/bin/wetty --host 0.0.0.0 -p 3000 --title wetty --base / --ssh-key /home/$$(whoami)/.ssh/wetty --ssh-host localhost --ssh-user $$(whoami) --ssh-port 22 --ssh-auth publickey --ssl-key /home/$$(whoami)/.ssl/wetty.key --ssl-cert /home/$$(whoami)/.ssl/wetty.crt"
-Restart=always
-RestartSec=2
-TimeoutStopSec=5
-SyslogIdentifier=wetty
-
-[Install]
-WantedBy=default.target
 ```
-
-Press `ctrl` + `x` and then press `y` to save then press `enter` to confirm and
-exit `nano`.
+ExecStart=/usr/bin/env pnpm start -- --host 0.0.0.0 --port 3000 --base / --ssh-host localhost --ssh-user myuser --ssh-port 22 --ssh-auth publickey --ssl-key /path/to/wetty.key --ssl-cert /path/to/wetty.crt
+```
 
 ### Optional - Systemd service with config file
 
-Here is the example using our pseudo configuration file. All modifications to
-the start up of `wetty` will be done by editing the `~/.config/Wetty/config`
-file and then reloading the `wetty.service`.
+Instead of passing flags on the command line, you can point wetty at a config
+file. All modifications to startup options are then made by editing that file
+and reloading the service.
 
-Use `nano` to open the file for editing.
-
-```bash
-nano ~/.config/systemd/user/wetty.service
 ```
-
-Then copy and paste this code.
-
-**Note:** This `ExecStart` assumes the location of your `config.json` to be
-`~/.config/wetty/config.json`. Please make sure you use the correct location for
-this file.
-
-```bash
-[Unit]
-Description=WeTTY
-After=network-online.target
-
-[Service]
-Type=simple
-ExecStart=/bin/bash -c "$$(source /home/$$(whoami)/.nvm/nvm.sh && nvm which 20) /home/$$(whoami)/bin/wetty --conf /home/$$(whoami)/.config/wetty/config.json"
-Restart=always
-RestartSec=2
-TimeoutStopSec=5
-SyslogIdentifier=wetty
-
-[Install]
-WantedBy=default.target
+ExecStart=/usr/bin/env pnpm start -- --conf /path/to/config.json
 ```
-
-Press `ctrl` + `x` and then press `y` to save then press `enter` to confirm and
-exit `nano`.
 
 ### Activating your service
 

@@ -110,25 +110,11 @@ you can create password-less users on the WeTTY platform and have them trust an
 SSH key used by the NodeJS, owned by the dedicated WeTTY OS user.
 
 WeTTY instantiation with proper parameters, especially the SSH private key is
-done via the following systemd service `/etc/systemd/system/wetty.service`:
+done via a systemd service. Copy `conf/wetty.service.example` to
+`/etc/systemd/system/wetty.service` and set `ExecStart` to something like:
 
 ```
-[Unit]
-Description=WeTTY Web Terminal
-After=network.target
-
-[Service]
-User=wetty
-Type=simple
-WorkingDirectory=/home/wetty/.node_modules/wetty/
-ExecStart=/usr/bin/node . -p 3000 --host 127.0.0.1 --ssh-key /home/wetty/.ssh/wetty --ssh-auth publickey --force-ssh --title "Foo bar terminal services"
-TimeoutStopSec=20
-KillMode=mixed
-Restart=always
-RestartSec=2
-
-[Install]
-WantedBy=multi-user.target
+ExecStart=/usr/bin/env pnpm start -- --host 127.0.0.1 --ssh-key /home/wetty/.ssh/wetty --ssh-auth publickey --force-ssh --title "Foo bar terminal services"
 ```
 
 For your new users to be automatically trusting this SSH key when provisioning,
@@ -139,7 +125,7 @@ you may add the pubkey to `/etc/skel/.ssh/authorized_keys`.
 You probably don't want local users to impersonate each other, for that you need
 to make sure that:
 
-1. NodeJS is listening only to localhost: provided by `wetty.service`
+1. NodeJS is listening only to localhost: provided by the wetty systemd service
 2. **Only** the apache2 process can join the WeTTY port. Else local users will
    be able to connect and forge a `remote-user` header: provided by
    `iptables -A OUTPUT -o lo -p tcp --dport 3000 -m owner \! --uid-owner www-data -j DROP`
